@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Create Todo{% endblock title %}
+{% block content %}
+    <div class="container d-flex gap-2 flex-column mt-4">
+        <h2>Create a todo</h2>
+        <form action="{% url 'task:create' %}" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div class="d-grid">
+               <button class="btn btn-secondary" type="submit">Submit</button> 
+            </div>
+            
+        </form>
+    </div>
+{% endblock content %}

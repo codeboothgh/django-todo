@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Todo Details{% endblock title %}
+{% block content %}
+<div class="container d-flex flex-column gap-4 mt-3">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex flex-column">
+            <h2>{{todo.name}}</h2>
+            <div class="d-flex gap-1 align-items-center">
+                {% if todo.status == 'Completed' %}
+                <span class="badge text-bg-success">{{todo.status}}</span>
+                {% elif todo.status == 'Pending' %}
+                <span class="badge text-bg-primary">{{todo.status}}</span>
+                {% elif todo.status == 'Cancelled' %}
+                <span class="badge text-bg-danger">{{todo.status}}</span>
+                {% endif %}
+                <span>{{todo.created_at}}</span>
+            </div>
+        </div>
+        <div class="d-flex flex-column gap-1">
+            <a href="{% url 'task:update' id=todo.id %}" class="btn btn-primary">Update</a>
+            <a href="{% url 'task:delete' id=todo.id %}" class="btn btn-danger">Delete</a>
+        </div>
+
+    </div>
+    <hr>
+    <div class="d-flex justify-content-between">
+        <h3>Statuses</h3>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+            data-bs-target="#changeStatusModal">Change Status</button>
+    </div>
+
+    <table class="table-hover">
+        <thead>
+            <th style="width: 80%;">Status</th>
+            <th>Date Created</th>
+        </thead>
+        <tbody>
+            {% for status in statuses %}
+            <tr>
+                <td>{{status.status}}</td>
+                <td>{{status.created_at}}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No status updated</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Change Status of {{todo.name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <form action="{% url 'task:change-status' todo.id %}" method="post">
+            
+                    {% csrf_token %}
+                    <div class="p-4">
+                        {% bootstrap_form form %}
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

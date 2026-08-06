@@ -1,0 +1,26 @@
+header {
+    display: flex;
+    height: 72px;
+    color: white;
+    background-color: RGBA(var(--bs-dark-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+
+header .brand {
+    font-size: 2rem;
+    text-decoration: none;
+    color: white;
+}
+
+main {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
