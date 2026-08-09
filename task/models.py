@@ -7,6 +7,7 @@ class Todo(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(User, related_name="todos", on_delete=models.CASCADE, blank=True, null=True)
+    todo = models.ForeignKey("Todo", related_name="todo_todos", on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         db_table = "todo"
@@ -16,6 +17,34 @@ class Todo(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_reaction_count(self):
+        reactions = TodoReaction.objects.filter(
+            id=self.id
+        ).count()
+        print("Reactions: ", reactions)
+        return reactions
+
+    def get_comment_count(self):
+        comments = Todo.objects.filter(
+            id=self.todo_id
+        ).count()
+
+        return comments
+
+REACTION = [
+    (1, 'Like'),
+    (2, 'Unlike'),
+]
+class TodoReaction(models.Model):
+    todo = models.ForeignKey(Todo, related_name="todoreactions", on_delete=models.CASCADE, blank=True, null=True)
+    reaction = models.IntegerField(choices=REACTION, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(User, related_name="todos_reactions", on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        db_table = "todo_reaction"
+        ordering = ['-created_at']
 
 
 class TodoStatus(models.Model):

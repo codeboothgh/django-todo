@@ -24,3 +24,16 @@ body {
     overflow: hidden;
     position: relative;
 }
+
+.avatar {
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    font-size: small;
+    font-weight: bold;
+    color: #02f5a1;
+    background-color: #07191e;
+}

@@ -5,6 +5,8 @@ from django.urls import reverse_lazy
 from task.forms import TaskForm, TodoStatusForm
 from .models import *
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, DeleteView, DetailView, UpdateView, View
 # Create your views here.
 
 # Get a list of todos
@@ -167,3 +169,35 @@ def change_status(request, id):
     )
     messages.success(request, "Status updated successfully!")
     return redirect(reverse_lazy("task:details", kwargs={"id": id}))
+
+# LoginRequiredMixin to check for authenticated users
+class TodoList(LoginRequiredMixin, ListView):
+
+    model = Todo
+    template_name = "home.html"
+    context_object_name = "todos"
+    ordering = "-created_at"
+
+class TodoDetails(LoginRequiredMixin, DetailView):
+    model = Todo
+    template_name = "details.html"
+    context_object_name = "todo"
+    slug_url_kwarg = "id"
+
+
+class CreateTodo(LoginRequiredMixin, CreateView):
+    model = Todo
+    form_class = TaskForm
+    template_name = "create.html"
+    success_url = "/"
+
+    def form_valid(self, form):
+        if form.is_valid():
+            Todo.objects.create(
+                name=form.cleaned_data.get("name"),
+                created_by=self.request.user
+            )
+
+            return redirect("task:home")
+        return super().form_valid(form)
+    
