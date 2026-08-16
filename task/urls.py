@@ -14,6 +14,8 @@ urlpatterns = [
 
     # now, for class based views
     path("", TodoList.as_view(), name="home"),
-    path("<int:id>", TodoDetails.as_view(), name="details"),
-    path("create", CreateTodo.as_view(), name="create")
+    path("<int:id>/", TodoDetails.as_view(), name="details"),
+    path("create/", CreateTodo.as_view(), name="create"),
+    path("reaction/<int:todo_id>/<int:reaction>/", CreateTodoReaction.as_view(), name="reaction"),
+    path("create-view/", CreateTodoView.as_view(), name="create-view")
 ]

@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
+
 header {
     display: flex;
     height: 72px;
@@ -17,12 +19,15 @@ main {
     width: 100%;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
 }
 
 body {
     height: 100vh;
     overflow: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .avatar {

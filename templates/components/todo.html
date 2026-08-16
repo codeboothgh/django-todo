@@ -1,0 +1,72 @@
+<li class="list-group-item d-flex flex-column gap-3">
+    <div class="d-flex gap-3">
+        <span
+            class="avatar">{{todo.created_by.first_name|first|default:"U"}}{{todo.created_by.last_name|first|default:"U"}}</span>
+        <div class="d-flex flex-column gap-1 flex-grow-1">
+            <div class="d-flex">
+                <span class="fw-bold flex-grow-1">{{todo.name}}</span>
+                <small style="width: fit-content; text-wrap: nowrap;">
+                    {% comment %} {{todo.created_at|date:"D jS M Y"}} | {% endcomment %}
+                    {{todo.created_at|timesince}}
+                </small>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <a href="{% url 'task:reaction' reaction=1 todo_id=todo.id %}" class="btn btn-sm btn-light"
+                        title="Likes">
+                        {{todo.get_likes_count}}
+                        {% if todo.reaction and todo.reaction == 2 %}
+                        <i class="bi bi-hand-thumbs-up"></i>
+                        {% elif todo.reaction and todo.reaction == 1 %}
+                        <i class="bi bi-hand-thumbs-up-fill"></i>
+                        {% else %}
+                        <i class="bi bi-hand-thumbs-up"></i>
+                        {% endif %}
+                    </a> |
+                    <a href="{% url 'task:reaction' reaction=2 todo_id=todo.id %}" class="btn btn-sm btn-light"
+                        title="Dislikes">
+                        {{todo.get_dislikes_count}}
+                        {% if todo.reaction and todo.reaction == 1 %}
+                        <i class="bi bi-hand-thumbs-down"></i>
+                        {% elif todo.reaction and todo.reaction == 2 %}
+                        <i class="bi bi-hand-thumbs-down-fill"></i>
+                        {% else %}
+                        <i class="bi bi-hand-thumbs-down"></i>
+                        {% endif %}
+                    </a> |
+                    <button class="btn btn-sm btn-light" data-bs-toggle="collapse"
+                        data-bs-target="#collapseExample-{{todo.name|slugify}}" role="button" aria-expanded="false"
+                        aria-controls="collapseExample">{{todo.get_comment_count}} <i class="bi bi-chat"></i></button>
+                </span>
+                <div class="d-flex gap-1">
+                    {% if todo.created_by.id == user.id %}
+                    <a class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger">Delete</a>
+                    {% endif %}
+                    <a class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="collapse" id="collapseExample-{{todo.name|slugify}}">
+        <form class="d-flex gap-2 flex-column" method="post" action="{% url 'task:create-view' %}?todo_id={{todo.id}}">
+            {% csrf_token %}
+            <div>
+                <label for="comment-{{todo.id}}">Add Comment</label>
+            <textarea required class="form-control" name="name" id="comment-{{todo.id}}"></textarea>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Comment</button>
+            </div>
+            
+        </form>
+        <ul>
+            {% for comment in todo.get_comments %}
+            {% include 'components/todo.html' with todo=comment %}
+        {% endfor%}
+        </ul>
+        
+    </div>
+</li>

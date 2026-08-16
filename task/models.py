@@ -20,9 +20,24 @@ class Todo(models.Model):
 
     def get_reaction_count(self):
         reactions = TodoReaction.objects.filter(
-            id=self.id
+            todo_id=self.id
         ).count()
-        print("Reactions: ", reactions)
+        
+        return reactions
+
+    def get_likes_count(self):
+        reactions = TodoReaction.objects.filter(
+            todo_id=self.id,
+            reaction=1
+        ).count()
+        
+        return reactions
+
+    def get_dislikes_count(self):
+        reactions = TodoReaction.objects.filter(
+            todo_id=self.id,
+            reaction=2
+        ).count()
         return reactions
 
     def get_comment_count(self):
@@ -32,9 +47,16 @@ class Todo(models.Model):
 
         return comments
 
+    def get_comments(self):
+        comments = Todo.objects.filter(
+            id=self.todo_id
+        )
+
+        return comments
+
 REACTION = [
     (1, 'Like'),
-    (2, 'Unlike'),
+    (2, 'Dislike'),
 ]
 class TodoReaction(models.Model):
     todo = models.ForeignKey(Todo, related_name="todoreactions", on_delete=models.CASCADE, blank=True, null=True)

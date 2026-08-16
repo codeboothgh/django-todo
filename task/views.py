@@ -172,11 +172,21 @@ def change_status(request, id):
 
 # LoginRequiredMixin to check for authenticated users
 class TodoList(LoginRequiredMixin, ListView):
-
     model = Todo
     template_name = "home.html"
     context_object_name = "todos"
     ordering = "-created_at"
+
+    def get_queryset(self):
+        user_reaction = TodoReaction.objects.filter(
+            todo_id=OuterRef("id"),
+            created_by=self.request.user
+        )
+        query = Todo.objects.all().annotate(
+            reaction=Subquery(user_reaction.values("reaction")[:1])
+        )
+
+        return query
 
 class TodoDetails(LoginRequiredMixin, DetailView):
     model = Todo
@@ -200,4 +210,76 @@ class CreateTodo(LoginRequiredMixin, CreateView):
 
             return redirect("task:home")
         return super().form_valid(form)
-    
+
+class CreateTodoReaction(LoginRequiredMixin, View):
+
+    def get(self, request, **kwargs):
+        reaction = kwargs.get("reaction")
+        todo_id = kwargs.get("todo_id")
+
+        if reaction is None:
+            messages.error(request, "No reaction provided")
+            return redirect("/")
+
+        # reaction has to be a number. any other data type should not be allowed. 
+        # Not allowed could be a stringified dictionary or any other value that is not a number
+        try:
+            reaction = int(reaction)
+        except:
+            messages.error(request, "Invalid reaction")
+            return redirect("/")
+        
+        if not reaction in [1, 2]:
+            messages.error(request, "Invalid reaction")
+            return redirect("/")
+
+        # check if todo exists
+        try:
+            Todo.objects.get(id=todo_id)
+        except:
+            messages.error(self.request, "Todo does not exist")
+
+        # check if the user has already reacted
+        try:
+            user_reaction = TodoReaction.objects.get(
+                created_by=self.request.user,
+                todo_id=todo_id
+            )
+            if user_reaction.reaction == reaction:
+                user_reaction.delete()
+            else:
+                user_reaction.reaction = reaction
+                user_reaction.save()
+
+            return redirect("/")
+        except:
+            user_reaction = TodoReaction.objects.create(
+                reaction=reaction,
+                created_by=self.request.user,
+                todo_id=todo_id
+            )
+
+            return redirect("/")
+
+
+class CreateTodoView(LoginRequiredMixin, View):
+
+    def post(self, request):
+        todo_id = self.request.GET.get("todo_id")
+        name = self.request.POST.get("name")
+
+        todo = None
+
+        try:
+            todo = Todo.objects.get(id=todo_id)
+        except: pass
+
+        new_todo = Todo.objects.create(
+            name=name,
+            created_by=self.request.user,
+            todo=todo
+        )
+
+        messages.success(self.request, "New todo added")
+
+        return redirect("/")
