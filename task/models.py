@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import OuterRef, Subquery
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -42,15 +43,22 @@ class Todo(models.Model):
 
     def get_comment_count(self):
         comments = Todo.objects.filter(
-            id=self.todo_id
+            todo_id=self.id
         ).count()
 
         return comments
 
     def get_comments(self):
-        comments = Todo.objects.filter(
-            id=self.todo_id
+        user_reaction = TodoReaction.objects.filter(
+            todo_id=OuterRef("id"),
+            # created_by=user
         )
+        comments = Todo.objects.filter(
+            todo_id=self.id
+        )
+        # .annotate(
+        #     reaction=Subquery(user_reaction.values("reaction")[:1])
+        # )
 
         return comments
 

@@ -7,7 +7,7 @@
         </div>
         <ul class="list-group list-group-flush">
             {% for todo in todos %}
-             {% include 'components/todo.html' with todo=todo only %}
+             {% include 'components/todo.html' with csrf_token=csrf_token user=user todo=todo only %}
             {% empty %}
             {% endfor %}
         </ul>

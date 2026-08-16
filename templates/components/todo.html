@@ -39,7 +39,7 @@
                         aria-controls="collapseExample">{{todo.get_comment_count}} <i class="bi bi-chat"></i></button>
                 </span>
                 <div class="d-flex gap-1">
-                    {% if todo.created_by.id == user.id %}
+                    {% if todo.created_by == user %}
                     <a class="btn btn-sm btn-outline-secondary">Edit</a>
                     <a class="btn btn-sm btn-outline-danger">Delete</a>
                     {% endif %}
@@ -50,23 +50,24 @@
     </div>
 
     <div class="collapse" id="collapseExample-{{todo.name|slugify}}">
-        <form class="d-flex gap-2 flex-column" method="post" action="{% url 'task:create-view' %}?todo_id={{todo.id}}">
-            {% csrf_token %}
-            <div>
-                <label for="comment-{{todo.id}}">Add Comment</label>
-            <textarea required class="form-control" name="name" id="comment-{{todo.id}}"></textarea>
-            </div>
-            
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Comment</button>
-            </div>
-            
-        </form>
-        <ul>
-            {% for comment in todo.get_comments %}
-            {% include 'components/todo.html' with todo=comment %}
-        {% endfor%}
-        </ul>
-        
+        <div class="d-flex flex-column gap-2 ms-5">
+            <form class="d-flex gap-2 flex-column" method="post"
+                action="{% url 'task:create-view' %}?todo_id={{todo.id}}">
+                {% csrf_token %}
+                <textarea rows="1" cols="3" placeholder="Add a comment" required class="form-control" name="name"
+                    id="comment-{{todo.id}}"></textarea>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Comment</button>
+                </div>
+
+            </form>
+            <span class="fw-bold">Comments</span>
+            <hr class="m-0">
+            <ul class="list-group list-group-flush">
+                {% for comment in todo.get_comments %}
+                {% include 'components/todo.html' with todo=comment %}
+                {% endfor%}
+            </ul>
+        </div>
     </div>
 </li>

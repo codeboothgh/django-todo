@@ -182,7 +182,9 @@ class TodoList(LoginRequiredMixin, ListView):
             todo_id=OuterRef("id"),
             created_by=self.request.user
         )
-        query = Todo.objects.all().annotate(
+        query = Todo.objects.filter(
+            todo_id=None
+        ).annotate(
             reaction=Subquery(user_reaction.values("reaction")[:1])
         )
 
