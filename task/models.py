@@ -3,6 +3,13 @@ from django.db.models import OuterRef, Subquery
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+# class TodoManger(models.Manager):
+#     def get_user(self, user):
+#         if isinstance(user, User):
+#             self.user = user
+#         else:
+#             self.user = None
+
 # Create your models here.
 class Todo(models.Model):
     name = models.CharField(max_length=255)
@@ -51,7 +58,7 @@ class Todo(models.Model):
     def get_comments(self):
         user_reaction = TodoReaction.objects.filter(
             todo_id=OuterRef("id"),
-            # created_by=user
+            # created_by=self.user
         )
         comments = Todo.objects.filter(
             todo_id=self.id

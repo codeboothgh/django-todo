@@ -4,7 +4,7 @@
             class="avatar">{{todo.created_by.first_name|first|default:"U"}}{{todo.created_by.last_name|first|default:"U"}}</span>
         <div class="d-flex flex-column gap-1 flex-grow-1">
             <div class="d-flex">
-                <span class="fw-bold flex-grow-1">{{todo.name}}</span>
+                <a href="{% url 'task:details' todo.id %}" class="fw-bold flex-grow-1 text-decoration-none text-dark">{{todo.name}}</a>
                 <small style="width: fit-content; text-wrap: nowrap;">
                     {% comment %} {{todo.created_at|date:"D jS M Y"}} | {% endcomment %}
                     {{todo.created_at|timesince}}
@@ -37,14 +37,14 @@
                     <button class="btn btn-sm btn-light" data-bs-toggle="collapse"
                         data-bs-target="#collapseExample-{{todo.name|slugify}}" role="button" aria-expanded="false"
                         aria-controls="collapseExample">{{todo.get_comment_count}} <i class="bi bi-chat"></i></button>
-                </span>
-                <div class="d-flex gap-1">
+                </span> 
+                {% comment %}<div class="d-flex gap-1">
                     {% if todo.created_by == user %}
                     <a class="btn btn-sm btn-outline-secondary">Edit</a>
                     <a class="btn btn-sm btn-outline-danger">Delete</a>
                     {% endif %}
                     <a class="btn btn-sm btn-outline-primary">View</a>
-                </div>
+                </div>{% endcomment %}
             </div>
         </div>
     </div>

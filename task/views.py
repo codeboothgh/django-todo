@@ -175,7 +175,6 @@ class TodoList(LoginRequiredMixin, ListView):
     model = Todo
     template_name = "home.html"
     context_object_name = "todos"
-    ordering = "-created_at"
 
     def get_queryset(self):
         user_reaction = TodoReaction.objects.filter(
@@ -186,15 +185,91 @@ class TodoList(LoginRequiredMixin, ListView):
             todo_id=None
         ).annotate(
             reaction=Subquery(user_reaction.values("reaction")[:1])
-        )
+        ).order_by("-created_at")
 
         return query
+
+    def get_context_data(self, **kwargs):
+        form = TaskForm()
+        context = super().get_context_data(**kwargs)
+        context["form"] = form
+        return context
 
 class TodoDetails(LoginRequiredMixin, DetailView):
     model = Todo
     template_name = "details.html"
     context_object_name = "todo"
-    slug_url_kwarg = "id"
+    pk_url_kwarg = "id"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        change_status_form = TodoStatusForm()
+
+        context["status_form"] = change_status_form
+        id = self.kwargs.get("id")
+        print(self.kwargs)
+        statuses = TodoStatus.objects.filter(todo_id=id)
+        context["statuses"] = statuses
+        return context
+
+
+class TodoObjectView(LoginRequiredMixin, View):
+    def get(self, request, **kwargs):
+        id = kwargs.get("id")
+        status = self.request.GET.get("status")
+
+        if id is None:
+            messages.error(request, "No id found")
+            return redirect("/")
+
+        try:
+            todo = Todo.objects.get(id=id)
+        except:
+            messages.error(request, "Todo with this id is not found")
+            return redirect("/")
+
+        try:
+            current_status = TodoStatus.objects.filter(todo=todo).latest("created_at")
+            
+            if current_status.status == status:
+                messages.error(request, "You have already selected this status as your current status. Please select another status")
+                return redirect(reverse_lazy("task:details", kwargs={"id": id}))
+        except Exception as e:
+            pass
+        
+        TodoStatus.objects.create(
+            todo=todo,
+            status=status
+        )
+        messages.success(request, "Status updated successfully!")
+        return redirect(reverse_lazy("task:details", kwargs={"id": id}))
+    
+    def post(self, request, **kwargs):
+        id = kwargs.get("id")
+        hidden_action = self.request.POST.get("action")
+        if id is None:
+            messages.error(request, "No id found")
+            return redirect("/")
+
+        try:
+            todo = Todo.objects.get(id=id)
+        except:
+            messages.error(request, "Todo with this id is not found")
+            return redirect("/")
+
+        if hidden_action == 'delete':
+            todo.delete()
+            messages.success(request, "Todo has been deleted")
+            return redirect("/")
+        
+        name = request.POST.get("name")
+
+        todo.name = name
+        todo.save()
+
+        messages.success(request, "Todo updated successfully!")
+
+        return redirect(reverse_lazy("task:details", kwargs={"id": id}))
 
 
 class CreateTodo(LoginRequiredMixin, CreateView):
@@ -205,11 +280,15 @@ class CreateTodo(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         if form.is_valid():
-            Todo.objects.create(
+            todo = Todo.objects.create(
                 name=form.cleaned_data.get("name"),
                 created_by=self.request.user
             )
-
+            # new status
+            TodoStatus.objects.create(
+                todo=todo,
+                status="Pending"
+            )
             return redirect("task:home")
         return super().form_valid(form)
 

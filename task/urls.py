@@ -17,5 +17,6 @@ urlpatterns = [
     path("<int:id>/", TodoDetails.as_view(), name="details"),
     path("create/", CreateTodo.as_view(), name="create"),
     path("reaction/<int:todo_id>/<int:reaction>/", CreateTodoReaction.as_view(), name="reaction"),
-    path("create-view/", CreateTodoView.as_view(), name="create-view")
+    path("create-view/", CreateTodoView.as_view(), name="create-view"),
+    path("object/<id>/", TodoObjectView.as_view(), name="object-view")
 ]

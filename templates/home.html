@@ -1,13 +1,29 @@
 {% extends "layout.html" %}
+{% load django_bootstrap5 %}
+{%block title %}Home{% endblock %}
 {% block content %}
 <div class="py-4 overflow-hidden overflow-y-auto w-100">
     <div class="container d-flex flex-column gap-2">
-        <div class="d-flex justify-content-end">
-            <a href="{% url 'task:create' %}" class="btn btn-primary">Create Todo</a>
-        </div>
+        <form id="new-todo-form" class="d-flex flex-column gap-1" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div class="d-grid">
+                <button id="new-todo-btn" class="btn btn-primary" type="submit">
+                    <div class="d-flex gap-1 align-items-center justify-content-center">
+                        <span>Post</span>
+                    <div id="spinner" hidden class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    </div>
+                    
+                </button>
+            </div>
+
+        </form>
+        <hr>
         <ul class="list-group list-group-flush">
             {% for todo in todos %}
-             {% include 'components/todo.html' with csrf_token=csrf_token user=user todo=todo only %}
+            {% include 'components/todo.html' with csrf_token=csrf_token user=user todo=todo only %}
             {% empty %}
             {% endfor %}
         </ul>
@@ -16,3 +32,28 @@
 
 </div>
 {% endblock content %}
+{% block script %}
+<script>
+    window.addEventListener("submit", async function(e) {
+        e.preventDefault()
+        const btn = document.getElementById("new-todo-btn")
+        btn.setAttribute("disabled", "true")
+
+        const spinner = document.getElementById("spinner")
+        spinner.removeAttribute("hidden")
+        const formEle = document.getElementById("new-todo-form")
+        const form = new FormData(formEle)
+        await fetch('/create-view/',
+            {
+                method: "POST",
+                body: form,
+                // headers: {
+                //     "Content-Type": ""
+                // }
+            }
+        )
+        window.location.reload()
+    })
+    
+</script>
+{% endblock %}
