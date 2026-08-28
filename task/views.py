@@ -355,7 +355,7 @@ class CreateTodoView(LoginRequiredMixin, View):
             todo = Todo.objects.get(id=todo_id)
         except: pass
 
-        new_todo = Todo.objects.create(
+        Todo.objects.create(
             name=name,
             created_by=self.request.user,
             todo=todo
