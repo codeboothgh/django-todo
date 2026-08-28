@@ -4,7 +4,7 @@
 {% block content %}
 <div class="py-4 overflow-hidden overflow-y-auto w-100">
     <div class="container d-flex flex-column gap-2">
-        <form id="new-todo-form" class="d-flex flex-column gap-1" method="post">
+        <form action="{% url 'task:create-view' %}" id="new-todo-form" class="d-flex flex-column gap-1" method="post">
             {% csrf_token %}
             {% bootstrap_form form %}
             <div class="d-grid">
@@ -15,7 +15,6 @@
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     </div>
-                    
                 </button>
             </div>
 
@@ -34,25 +33,30 @@
 {% endblock content %}
 {% block script %}
 <script>
-    window.addEventListener("submit", async function(e) {
+    const form = document.getElementById("new-todo-form")
+    form.addEventListener("submit", function(e) {
         e.preventDefault()
+        const frm = e.target;
         const btn = document.getElementById("new-todo-btn")
         btn.setAttribute("disabled", "true")
-
         const spinner = document.getElementById("spinner")
         spinner.removeAttribute("hidden")
-        const formEle = document.getElementById("new-todo-form")
-        const form = new FormData(formEle)
-        await fetch('/create-view/',
+        
+        fetch(frm.action,
             {
                 method: "POST",
-                body: form,
-                // headers: {
-                //     "Content-Type": ""
-                // }
+                body: new FormData(frm),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
             }
-        )
-        window.location.reload()
+        ).then(async(response) => {
+            btn.removeAttribute("disabled")
+            spinner.setAttribute('hidden', 'true')
+            window.location.reload()
+        }).catch((e) => {
+            
+        })
     })
     
 </script>
