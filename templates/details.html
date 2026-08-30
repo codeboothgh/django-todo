@@ -17,13 +17,95 @@
                 <span>{{todo.created_at}}</span>
             </div>
         </div>
-        <div class="d-flex flex-column gap-1">
-            <a href="#" class="btn btn-primary">Update</a>
-            <a href="#" class="btn btn-danger">Delete</a>
+    </div>
+
+
+     <div>
+        <button  class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateTodo">Update</button>
+        <button  class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTodo">Delete</button>
+    </div>
+
+
+ <!-- =================================================================================================================  -->
+    <hr>
+
+    <!-- underline  -->
+
+    <ul class="nav nav-underline">
+
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#details" type="button">
+                Details
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#comments" type="button">
+                Comments
+            </button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reactions" type="button">
+                Reactions
+            </button>
+        </li>
+
+    </ul>
+
+
+    <!-- the tabs content -->
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active" id="details">
+            <p>
+                <strong>Post : </strong> {{ todo.name }}
+            </p>
+            <p>
+                <strong>Posted by : </strong> {{ todo.created_by }} 
+            </p>
+            
+            <p>
+                <strong>Posted at : </strong> {{ todo.created_at}}
+            </p>
+
+            <p>
+                <strong>status : </strong> {{ todo.todo_statuses.first.status }}
+            </p>
+
+        </div>
+
+
+        <!-- the tab comments -->
+
+        <div class="tab-pane fade" id="comments">
+            {% for comment in todo.get_comments %}
+            {% include 'components/todo.html' with csrf_token=csrf_token user=user todo=comment only %}
+            {% endfor %}
+        </div>
+
+
+        <!-- the reactions -->
+
+        <div class="tab-pane fade" id="reactions">
+            #add the
+            <span class="btn btn-sm btn-light">
+                likes : {{ todo.get_likes_count }} 
+            </span>
+
+            <span class="btn btn-sm btn-light">
+                dislike : {{ todo.get_dislikes_count }} 
+            </span>
         </div>
 
     </div>
     <hr>
+ <!-- ======================================================================================================== -->
+
+
+
+
     <div class="d-flex justify-content-between">
         <h3>Statuses</h3>
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
@@ -59,7 +141,7 @@
             </div>
             <div class="modal-body p-0">
                 <form action="{% url 'task:object-view' todo.id %}" method="get">
-            
+
                     {% csrf_token %}
                     <div class="p-4">
                         {% bootstrap_form status_form %}
@@ -70,6 +152,71 @@
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ============================================== update ======================================== -->
+<div class="modal fade" id="updateTodo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">update your todo </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <form action="{% url 'task:object-view' todo.id %}" method="post">
+
+                    {% csrf_token %}
+                    
+                    <div class="p-4">
+                        <input type="text" name="name"  class="form-control mb-3" value="{{ todo.name }}">
+                        {% bootstrap_form status_form %}
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">update</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== delete ======================================== -->
+<div class="modal fade" id="deleteTodo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3 class="modal-title fs-5" id="exampleModalLabel">
+                    Are you sure you want to delete?
+                </h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <strong>{{ todo.name }}</strong>?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"class="btn btn-secondary"data-bs-dismiss="modal">Close</button>
+                <form action="{% url 'task:object-view' todo.id %}" method="post">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="action" value="delete">
+
+                    <button type="submit" class="btn btn-danger">
+                        Yes
+                    </button>
+                </form>
+
             </div>
 
         </div>

@@ -266,7 +266,7 @@ class TodoObjectView(LoginRequiredMixin, View):
 
         todo.name = name
         todo.save()
-
+     #add a logic to update the status
         messages.success(request, "Todo updated successfully!")
 
         return redirect(reverse_lazy("task:details", kwargs={"id": id}))

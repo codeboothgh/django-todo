@@ -81,7 +81,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "codebooth_django",
         "USER": "postgres",
-        "PASSWORD": "Password.1",
+        "PASSWORD": "Kubutech",
         "HOST": "localhost",
         "PORT": "5432"
     }
