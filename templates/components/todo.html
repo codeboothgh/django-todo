@@ -1,6 +1,7 @@
 <li class="list-group-item d-flex flex-column gap-3">
     <div class="d-flex gap-3">
         <span
+        title = "{{ todo.created_by}}"
             class="avatar">{{todo.created_by.first_name|first|default:"U"}}{{todo.created_by.last_name|first|default:"U"}}</span>
         <div class="d-flex flex-column gap-1 flex-grow-1">
             <div class="d-flex">

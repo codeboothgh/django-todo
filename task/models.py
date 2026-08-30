@@ -69,6 +69,12 @@ class Todo(models.Model):
 
         return comments
 
+    def get_reactions(self):
+        reactions = TodoReaction.objects.filter(
+            todo_id = self.id
+        )
+        return reactions
+
 REACTION = [
     (1, 'Like'),
     (2, 'Dislike'),
